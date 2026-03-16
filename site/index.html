@@ -158,8 +158,9 @@
           'no-underline text-white'
         ].join(' ');
 
-        const iconEl = item.icon
-          ? `<img src="${item.icon}" alt="" class="w-10 h-10 rounded-lg object-contain flex-shrink-0">`
+        const iconSrc = item.icon || config.defaultIcon;
+        const iconEl = iconSrc
+          ? `<img src="${iconSrc}" alt="" class="w-10 h-10 rounded-lg object-contain flex-shrink-0">`
           : `<div class="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0 text-lg font-bold">${item.text.charAt(0)}</div>`;
 
         tile.innerHTML = `

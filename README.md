@@ -10,42 +10,42 @@ Eine persönliche Linksammlung als statische Webseite mit Milchglas-Design.
 - Konfiguration über eine einzige JSON-Datei
 - Docker-Deployment mit nginx
 
-## Starten
+## Einrichtung
 
-```bash
-docker compose up -d
-```
+1. Beispielkonfiguration kopieren:
+   ```bash
+   cp site/config.example.json site/config.json
+   ```
 
-Öffne [http://localhost:8080](http://localhost:8080).
+2. `site/config.json` nach Bedarf anpassen
+
+3. Assets in die entsprechenden Ordner legen:
+   - Hintergrundbild: `site/assets/wallpaper/`
+   - Icons: `site/assets/icons/`
+   - Fonts: `site/assets/fonts/`
+
+4. Starten:
+   ```bash
+   docker compose up -d
+   ```
+
+5. Öffne [http://localhost:8080](http://localhost:8080)
 
 ## Konfiguration
 
-Bearbeite `site/config.json`:
+Alle Einstellungen erfolgen in `site/config.json` (wird nicht mit Git versioniert):
 
-```json
-{
-  "title": "Meine Linksammlung",
-  "favicon": "assets/icons/favicon.png",
-  "wallpaper": "assets/wallpaper/bg.jpg",
-  "toggleLabels": { "left": "Privat", "right": "Arbeit" },
-  "lists": {
-    "left": [
-      { "text": "GitHub", "url": "https://github.com", "description": "Code & Repos", "icon": "" }
-    ],
-    "right": [
-      { "text": "Jira", "url": "https://jira.example.com", "description": "Tickets", "icon": "" }
-    ]
-  }
-}
-```
+| Feld | Beschreibung |
+|------|-------------|
+| `title` | Seitentitel (Browser-Tab) |
+| `favicon` | Pfad zum Favicon |
+| `wallpaper` | Pfad zum Hintergrundbild |
+| `font` | Pfad zu einer Custom Font (optional) |
+| `defaultIcon` | Standard-Icon wenn kein Link-Icon gesetzt (optional) |
+| `toggleLabels` | Beschriftung des Toggle-Sliders |
+| `lists.left` / `lists.right` | Die beiden Linklisten |
 
-## Assets
-
-- Hintergrundbild: `site/assets/wallpaper/`
-- Icons: `site/assets/icons/`
-- Fonts: `site/assets/fonts/`
-
-Nach Änderungen Seite im Browser neu laden.
+Siehe `site/config.example.json` als Vorlage.
 
 ## Lizenz
 

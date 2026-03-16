@@ -62,6 +62,15 @@ Desktop.ini
 .classpath
 .settings/
 
+# Persönliche Konfiguration & Assets
+site/config.json
+site/assets/icons/*
+site/assets/wallpaper/*
+site/assets/fonts/*
+!site/assets/icons/.gitkeep
+!site/assets/wallpaper/.gitkeep
+!site/assets/fonts/.gitkeep
+
 # Uploads & persönliche Dateien
 uploads/
 files/
