@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Linksammlung</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link id="favicon" rel="icon" type="image/png" href="">
+  <style>
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      margin: 0;
+    }
+    #bg {
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%);
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+    }
+    #tiles-container {
+      transition: opacity 200ms ease;
+    }
+  </style>
+</head>
+<body class="text-white min-h-screen flex flex-col">
+  <div id="bg"></div>
+
+  <!-- Header -->
+  <header class="flex items-center justify-end px-6 py-4 max-w-5xl mx-auto w-full shrink-0">
+    <!-- Toggle Slider -->
+    <div class="flex items-center gap-3 text-sm font-medium">
+      <span id="label-left" class="drop-shadow opacity-100 transition-opacity duration-200"></span>
+      <label class="relative inline-flex items-center cursor-pointer">
+        <input id="list-toggle" type="checkbox" class="sr-only peer">
+        <div class="w-11 h-6 rounded-full
+          bg-white/20 border border-white/30
+          peer-checked:bg-white/30
+          peer-focus:outline-none
+          after:content-[''] after:absolute after:top-[2px] after:left-[2px]
+          after:bg-white after:rounded-full after:h-5 after:w-5
+          after:transition-all after:duration-300
+          peer-checked:after:translate-x-full
+          shadow-inner"></div>
+      </label>
+      <span id="label-right" class="drop-shadow opacity-60 transition-opacity duration-200"></span>
+    </div>
+  </header>
+
+  <!-- Tiles -->
+  <div class="flex-1 flex items-center justify-center p-6">
+    <main class="flex flex-wrap justify-center gap-6 max-w-5xl w-full content-center" id="tiles-container">
+    </main>
+  </div>
+
+  <script>
+    let config = null;
+
+    async function init() {
+      const res = await fetch('config.json');
+      config = await res.json();
+
+      // Title
+      document.title = config.title;
+
+      // Favicon
+      if (config.favicon) {
+        document.getElementById('favicon').href = config.favicon;
+      }
+
+      // Font
+      if (config.font) {
+        const font = new FontFace('CustomFont', `url('${config.font}')`);
+        font.load().then(loaded => {
+          document.fonts.add(loaded);
+          document.body.style.fontFamily = "'CustomFont', 'Segoe UI', system-ui, sans-serif";
+        });
+      }
+
+      // Wallpaper
+      if (config.wallpaper) {
+        const bg = document.getElementById('bg');
+        const img = new Image();
+        img.onload = () => { bg.style.backgroundImage = `url('${config.wallpaper}')`; };
+        img.src = config.wallpaper;
+      }
+
+      // Toggle labels
+      document.getElementById('label-left').textContent = config.toggleLabels.left;
+      document.getElementById('label-right').textContent = config.toggleLabels.right;
+
+      // Toggle event
+      const toggle = document.getElementById('list-toggle');
+      toggle.addEventListener('change', () => {
+        const side = toggle.checked ? 'right' : 'left';
+        updateLabelOpacity(toggle.checked);
+        switchList(side);
+        setToggleCookie(side);
+      });
+
+      // Initial render – restore from cookie or default to left
+      const saved = getToggleCookie();
+      if (saved === 'right') {
+        toggle.checked = true;
+        updateLabelOpacity(true);
+        renderTiles(config.lists.right);
+      } else {
+        renderTiles(config.lists.left);
+      }
+    }
+
+    function setToggleCookie(side) {
+      const expires = new Date(Date.now() + 48 * 60 * 60 * 1000).toUTCString();
+      document.cookie = `toggleSide=${side}; expires=${expires}; path=/; SameSite=Lax`;
+    }
+
+    function getToggleCookie() {
+      const match = document.cookie.match(/(?:^|; )toggleSide=(\w+)/);
+      return match ? match[1] : null;
+    }
+
+    function updateLabelOpacity(isRight) {
+      const left = document.getElementById('label-left');
+      const right = document.getElementById('label-right');
+      left.classList.toggle('opacity-100', !isRight);
+      left.classList.toggle('opacity-60', isRight);
+      right.classList.toggle('opacity-100', isRight);
+      right.classList.toggle('opacity-60', !isRight);
+    }
+
+    function switchList(side) {
+      const container = document.getElementById('tiles-container');
+      container.style.opacity = '0';
+      setTimeout(() => {
+        renderTiles(config.lists[side]);
+        container.style.opacity = '1';
+      }, 200);
+    }
+
+    function renderTiles(list) {
+      const container = document.getElementById('tiles-container');
+      container.innerHTML = '';
+
+      list.forEach(item => {
+        const tile = document.createElement('a');
+        tile.href = item.url;
+        tile.target = '_blank';
+        tile.rel = 'noopener noreferrer';
+        tile.className = [
+          'w-full sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)]',
+          'backdrop-blur-xl bg-black/30 border border-white/20 rounded-2xl shadow-lg',
+          'p-5 flex items-center gap-4',
+          'hover:scale-105 hover:shadow-2xl hover:bg-black/40 hover:border-white/35',
+          'transition-all duration-300 ease-out',
+          'no-underline text-white'
+        ].join(' ');
+
+        const iconEl = item.icon
+          ? `<img src="${item.icon}" alt="" class="w-10 h-10 rounded-lg object-contain flex-shrink-0">`
+          : `<div class="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0 text-lg font-bold">${item.text.charAt(0)}</div>`;
+
+        tile.innerHTML = `
+          ${iconEl}
+          <div class="min-w-0">
+            <div class="font-semibold text-base truncate">${item.text}</div>
+            ${item.description ? `<div class="text-sm text-white/70 truncate">${item.description}</div>` : ''}
+          </div>
+        `;
+
+        container.appendChild(tile);
+      });
+    }
+
+    init();
+  </script>
+</body>
+</html>
